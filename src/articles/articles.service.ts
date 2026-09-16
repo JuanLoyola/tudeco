@@ -41,4 +41,14 @@ export class ArticlesService {
       data: updateArticleDto
     })
   }
+
+  async remove(id: number) {
+    await this.findOne(id)
+
+    return this.prisma.articles.delete({
+      where: {
+        id
+      }
+    })
+  }
 }
