@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service.js'
+import { CreateArticleDto } from './dto/create-article.dto.js'
 
 @Injectable()
 export class ArticlesService {
@@ -16,8 +17,16 @@ export class ArticlesService {
       }
     })
 
-    if (!article) throw new NotFoundException(`Article with id ${id} not found`)
+    if (!article) {
+      throw new NotFoundException(`Article with id ${id} not found`)
+    }
 
     return article
+  }
+
+  async create(createArticleDto: CreateArticleDto) {
+    return this.prisma.articles.create({
+      data: createArticleDto
+    })
   }
 }
