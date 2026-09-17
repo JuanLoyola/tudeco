@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer'
 import {
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -28,4 +29,19 @@ export class ArticlesQueryDto {
   @IsOptional()
   @IsString()
   search?: string
+
+  @IsOptional()
+  @IsIn([
+    'id',
+    'name',
+    'category',
+    'price',
+    'stock',
+    'create_date'
+  ])
+  sortBy = 'id'
+
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  order: 'asc' | 'desc' = 'desc'
 }

@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service.js'
-import { CreateArticleDto } from './dto/create-article.dto.js'
-import { UpdateArticleDto } from './dto/update-article.dto.js'
-import { ArticlesQueryDto } from './dto/articles-query.dto.js'
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { CreateArticleDto } from './dto/create-article.dto.js';
+import { UpdateArticleDto } from './dto/update-article.dto.js';
+import { ArticlesQueryDto } from './dto/articles-query.dto.js';
 
 @Injectable()
 export class ArticlesService {
@@ -13,26 +13,28 @@ export class ArticlesService {
       page = 1,
       limit = 10,
       category,
-      search
-    } = query
+      search,
+      sortBy = 'id',
+      order = 'desc',
+    } = query;
 
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
     const where = {
       ...(category && {
         category: {
           equals: category,
-          mode: 'insensitive' as const
-        }
+          mode: 'insensitive' as const,
+        },
       }),
 
       ...(search && {
         name: {
           contains: search,
-          mode: 'insensitive' as const
-        }
-      })
-    }
+          mode: 'insensitive' as const,
+        },
+      }),
+    };
 
     const [articles, total] = await Promise.all([
       this.prisma.articles.findMany({
@@ -40,14 +42,14 @@ export class ArticlesService {
         skip,
         take: limit,
         orderBy: {
-          id: 'desc'
-        }
+          [sortBy]: order,
+        },
       }),
 
       this.prisma.articles.count({
-        where
-      })
-    ])
+        where,
+      }),
+    ]);
 
     return {
       data: articles,
@@ -55,49 +57,49 @@ export class ArticlesService {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
-    }
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number) {
     const article = await this.prisma.articles.findUnique({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
 
     if (!article) {
-      throw new NotFoundException(`Article with id ${id} not found`)
+      throw new NotFoundException(`Article with id ${id} not found`);
     }
 
-    return article
+    return article;
   }
 
   async create(createArticleDto: CreateArticleDto) {
     return this.prisma.articles.create({
-      data: createArticleDto
-    })
+      data: createArticleDto,
+    });
   }
 
   async update(id: number, updateArticleDto: UpdateArticleDto) {
-    await this.findOne(id)
+    await this.findOne(id);
 
     return this.prisma.articles.update({
       where: {
-        id
+        id,
       },
-      data: updateArticleDto
-    })
+      data: updateArticleDto,
+    });
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    await this.findOne(id);
 
     return this.prisma.articles.delete({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
   }
 }

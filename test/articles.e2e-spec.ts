@@ -145,4 +145,42 @@ describe('Articles E2E', () => {
     expect(response.body.statusCode).toBe(400);
     expect(response.body.message).toBeInstanceOf(Array);
   });
+
+  it('GET /articles should sort by price ascending', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/articles?sortBy=price&order=asc')
+      .expect(200);
+
+    const prices = response.body.data.map((article: any) =>
+      Number(article.price),
+    );
+
+    expect(prices).toEqual([...prices].sort((a, b) => a - b));
+  });
+
+  it('GET /articles should sort by stock descending', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/articles?sortBy=stock&order=desc')
+      .expect(200);
+
+    const stocks = response.body.data.map((article: any) => article.stock);
+
+    expect(stocks).toEqual([...stocks].sort((a, b) => b - a));
+  });
+
+  it('GET /articles should reject invalid sortBy', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/articles?sortBy=password')
+      .expect(400);
+
+    expect(response.body.statusCode).toBe(400);
+  });
+
+  it('GET /articles should reject invalid order', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/articles?order=random')
+      .expect(400);
+
+    expect(response.body.statusCode).toBe(400);
+  });
 });
